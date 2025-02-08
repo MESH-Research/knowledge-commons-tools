@@ -264,7 +264,6 @@ out/
 
 stunnel
 
-uv.lock
 .python-version
 
 keys/*.pem
