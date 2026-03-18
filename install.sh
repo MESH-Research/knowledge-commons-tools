@@ -6,8 +6,13 @@ SYSTEMD_USER_DIR="${HOME}/.config/systemd/user"
 SSH_DIR="${HOME}/.ssh"
 HOSTS_FILE="${SSH_DIR}/ecs_hosts"
 SSH_CONFIG="${SSH_DIR}/config"
+AWS_PROFILE="mesh"
 
 echo "==> Setting up SSH config sync from ECS instances"
+
+# Populate AWS profile from 1Password
+echo "==> Setting up AWS profile '${AWS_PROFILE}'"
+"${SCRIPT_DIR}/setup_aws_profile.sh" "${AWS_PROFILE}"
 
 # Generate systemd unit files with absolute paths
 echo "==> Generating systemd unit files"
@@ -19,7 +24,7 @@ Description=Sync ECS instance IPs to SSH config
 [Service]
 Type=oneshot
 WorkingDirectory=${SCRIPT_DIR}
-ExecStart=/usr/bin/op run --env-file=${SCRIPT_DIR}/.env.tpl -- $(command -v uv) run ${SCRIPT_DIR}/sync_ssh.py
+ExecStart=$(command -v uv) run ${SCRIPT_DIR}/sync_ssh.py --profile ${AWS_PROFILE}
 EOF
 
 cat > "${SCRIPT_DIR}/systemd/sync-ssh-ecs.timer" <<EOF
@@ -69,11 +74,7 @@ fi
 
 # Run initial sync
 echo "==> Running initial sync"
-if command -v op &> /dev/null; then
-    op run --env-file="${SCRIPT_DIR}/.env.tpl" -- uv run "${SCRIPT_DIR}/sync_ssh.py" || echo "    Initial sync failed (is 1Password unlocked?). Timer will retry."
-else
-    echo "    1Password CLI (op) not found. Timer will handle syncing once available."
-fi
+uv run "${SCRIPT_DIR}/sync_ssh.py" --profile "${AWS_PROFILE}" || echo "    Initial sync failed. Check AWS credentials with: aws sts get-caller-identity --profile ${AWS_PROFILE}"
 
 echo ""
 echo "==> Done! Timer status:"

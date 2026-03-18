@@ -44,3 +44,5 @@ fi
 
 echo ""
 echo "==> Done! SSH config sync has been removed."
+echo "    Note: The AWS profile 'mesh' in ~/.aws/credentials was left in place."
+echo "    Remove it manually if no longer needed."

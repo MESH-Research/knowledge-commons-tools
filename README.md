@@ -34,7 +34,7 @@ This project provides tools for working with MESH Research Knowledge Commons sys
 
 ## sync_ssh.py
 
-Automatically syncs ECS instance IPs into your SSH config so you can `ssh wordpress-staging-nginx` directly.
+Automatically syncs ECS instance IPs into your SSH config so you can `ssh wordpress-staging-nginx` directly. See [docs/ssh-sync.md](docs/ssh-sync.md) for full documentation including setup, usage, troubleshooting, and architecture.
 
     Usage: sync_ssh.py [OPTIONS]
 
@@ -57,33 +57,33 @@ The script writes host entries to `~/.ssh/ecs_hosts` and adds an `Include` direc
 
 To run `sync_ssh.py` automatically every 15 minutes using a systemd user timer:
 
-1. Edit `.env.tpl` to point at your 1Password vault items:
-
-```
-AWS_ACCESS_KEY_ID=op://YourVault/YourItem/access-key-id
-AWS_SECRET_ACCESS_KEY=op://YourVault/YourItem/secret-access-key
-```
-
-2. Run the installer:
+1. Run the installer (requires 1Password CLI for initial credential setup):
 
 ```bash
 ./install.sh
 ```
 
 This will:
+- Pull AWS credentials from 1Password into an AWS profile (`mesh`) in `~/.aws/credentials`
 - Generate systemd unit files with correct paths
 - Symlink them into `~/.config/systemd/user/`
 - Enable and start the timer
 - Ensure `~/.ssh/config` includes `~/.ssh/ecs_hosts`
 - Run an initial sync
 
+The timer uses the `mesh` AWS profile directly — no 1Password interaction needed at runtime.
+
+To rotate credentials later, re-run:
+
+```bash
+./setup_aws_profile.sh
+```
+
 Check timer status with:
 
 ```bash
 systemctl --user status sync-ssh-ecs.timer
 ```
-
-The timer uses 1Password CLI (`op run`) to inject secrets at runtime. If the 1Password desktop app is locked, the sync fails silently and retries at the next interval.
 
 ## Environment Variables
 
