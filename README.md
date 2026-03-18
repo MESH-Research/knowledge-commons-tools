@@ -32,6 +32,59 @@ This project provides tools for working with MESH Research Knowledge Commons sys
 
     Get IP addresses of all EC2 instances in all clusters.
 
+## sync_ssh.py
+
+Automatically syncs ECS instance IPs into your SSH config so you can `ssh wordpress-staging-nginx` directly.
+
+    Usage: sync_ssh.py [OPTIONS]
+
+      Sync ECS instance IPs to SSH config.
+
+    Options:
+      -r, --region TEXT        AWS region name  [default: us-east-1]
+      -p, --profile TEXT       AWS profile name
+      --private / --public     Use private IPs instead of public
+      -i, --identity-file TEXT SSH identity file path
+      -u, --user TEXT          SSH user  [default: ec2-user]
+      --dry-run                Print config without writing
+      --hosts-file TEXT        Path to the generated hosts file  [default: ~/.ssh/ecs_hosts]
+      --ssh-config TEXT        Path to SSH config file  [default: ~/.ssh/config]
+      --help                   Show this message and exit.
+
+The script writes host entries to `~/.ssh/ecs_hosts` and adds an `Include` directive to `~/.ssh/config`.
+
+### Automatic Sync with systemd Timer
+
+To run `sync_ssh.py` automatically every 15 minutes using a systemd user timer:
+
+1. Edit `.env.tpl` to point at your 1Password vault items:
+
+```
+AWS_ACCESS_KEY_ID=op://YourVault/YourItem/access-key-id
+AWS_SECRET_ACCESS_KEY=op://YourVault/YourItem/secret-access-key
+```
+
+2. Run the installer:
+
+```bash
+./install.sh
+```
+
+This will:
+- Generate systemd unit files with correct paths
+- Symlink them into `~/.config/systemd/user/`
+- Enable and start the timer
+- Ensure `~/.ssh/config` includes `~/.ssh/ecs_hosts`
+- Run an initial sync
+
+Check timer status with:
+
+```bash
+systemctl --user status sync-ssh-ecs.timer
+```
+
+The timer uses 1Password CLI (`op run`) to inject secrets at runtime. If the 1Password desktop app is locked, the sync fails silently and retries at the next interval.
+
 ## Environment Variables
 
 The following environment variables are required to run get_ip or get_all_ips:

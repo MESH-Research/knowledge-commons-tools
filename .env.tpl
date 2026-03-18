@@ -1,0 +1,2 @@
+AWS_ACCESS_KEY_ID="op://BotAccess/setvarskc/AWS_ACCESS_KEY_ID"
+AWS_SECRET_ACCESS_KEY="op://BotAccess/setvarskc/AWS_SECRET_ACCESS_KEY"

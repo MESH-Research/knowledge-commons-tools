@@ -14,6 +14,8 @@ run_with_secrets.sh
 **/.terraform/*
 .terraform
 
+.env
+
 # .tfstate files
 *.tfstate
 *.tfstate.*

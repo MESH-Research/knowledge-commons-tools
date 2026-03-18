@@ -1,0 +1,7 @@
+[Unit]
+Description=Sync ECS instance IPs to SSH config
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/martin/Documents/Programming/MESH/tools
+ExecStart=/usr/bin/op run --env-file=/home/martin/Documents/Programming/MESH/tools/.env.tpl -- /home/martin/.local/bin/uv run /home/martin/Documents/Programming/MESH/tools/sync_ssh.py
