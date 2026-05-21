@@ -1,3 +1,9 @@
+## 1.2.0 (2026-05-21)
+
+### Feat
+
+- **update-waf**: adds tool to update the WAF with the egress IP
+
 ## 1.1.0 (2026-03-18)
 
 ### Feat
